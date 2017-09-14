@@ -1,58 +1,125 @@
 <template>
-    <div class="scroll"
-    @touchstart="touchStart($event)"
-    @touchmove="touchMove($event)"
-    @touchend="touchEnd($event)">
-          <section class="inner">
-              <header class="pull-refresh">
-                  <slot name="pull-refresh">
-                      <span class="down-tip">下拉更新</span>
-                      <span class="up-tip">松开刷新数据</span>
-                      <span class="refresh-tip">加载中……</span>
+    <div class="scroll-box">
+        <div class="scroll"
+        @touchend="touchEnd($event)">
+              <section class="inner">
+                  <header class="pull-refresh">
+                      <slot name="pull-refresh">
+                          <span class="down-tip">下拉更新</span>
+                          <span class="up-tip">松开刷新数据</span>
+                          <span class="refresh-tip" v-show="downLoading">加载中……</span>
+                      </slot>
+                  </header>
+                  <slot name="list">
+
                   </slot>
-              </header>
-              <slot>
-              </slot>
-              <footer class="load-more">
-                  <slot name="load-more">
-                      <span >上啦加载更多</span>
-                      <span>加载中……</span>
-                  </slot>
-              </footer>
-              <div class="nullData" >暂无更多数据</div>
-          </section>
-      </div>
+                  <footer class="load-more">
+                      <slot name="load-more">
+                          <span >上拉加载更多</span>
+                          <span class="refresh-tip" v-show="upLoading">加载中……</span>
+                      </slot>
+                  </footer>
+                  <div class="nullData" v-show="noData">暂无更多数据</div>
+              </section>
+          </div>
+    </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
-  name: 'hello',
-  data () {
-    return {
-      clientHeight:0,//网页高度
-      scrollTop:0,//滚出页面顶部距离
-      innerHeight:0,//浏览器高度
-    }
+    props:{
+        next: {
+            type: Function,
+            required: true
+        },
+        up: {
+            type: Function,
+            required: true
+        },
+        isLastPage: {
+            type: Boolean,
+            required: false
+        }
+    },
+  data() {
+      return{
+          upLoading:false,
+          downLoading:false,
+          noData:false,
+          clientHeight:0,//当前屏幕的高度
+          scrollTop:0,//滚出页面顶部距离
+          innerHeight:0,//页面高度
+      }
+
 },
 methods:{
-    touchStart(e){
-        alert(1)
-        console.log(this.$el.scrollTop);
-
-    },
-    touchMove(e){
-        console.log(this.$el.scrollTop);
-
-    },
     touchEnd(e){
-        console.log(123);
-    }
+        var $vm = this;
+        this.clientHeight = this.$el.clientHeight;
+        this.scrollTop = this.$el.scrollTop;
+        this.innerHeight = this.$el.scrollHeight;
+        console.log(this.$el.scrollTop);//滚出页面的高度
+        console.log(this.$el.clientHeight);//当前屏幕的高度
+        console.log(this.$el.scrollHeight);//当前页面的高度
+
+        if( this.scrollTop + this.clientHeight + 5 >= this.innerHeight){
+            console.log('到达底部');
+            this.getList();
+
+        }else{
+            console.log('未到达底部')
+        }
+        if (this.scrollTop == 0){
+            console.log('到达顶部');
+            this.downLoading = true;
+            this.refresh();
+        }
+
+    },
+    getList(){
+        if( this.isLastPage ){
+            this.noData = true;
+            return;
+        }
+        this.upLoading = true;
+        this.next().then(() => {
+            this.upLoading = false;
+        }).catch( () => {
+            this.upLoading = false;
+
+        });
+    },
+    refresh(){
+        this.up().then(() => {
+            this.downLoading = false;
+        }).catch( () => {
+            this.downLoading = false;
+        })
+    },
 
 }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+
+<style>
+html,body{
+    height:100%;
+}
+.scroll-box{
+    height:100%;
+    overflow: scroll;
+}
+.scroll{
+    height:1000px;
+}
+.refresh-tip{
+    display:inline-block;
+    text-align: center;
+    line-height: 80px;
+    height:80px;
+    width:100%;
+}
 
 </style>

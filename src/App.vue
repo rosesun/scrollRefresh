@@ -1,113 +1,58 @@
 <template>
-    <div class="scroll-box">
-        <div class="scroll"
-        @touchend="touchEnd($event)">
-              <section class="inner">
-                  <header class="pull-refresh">
-                      <slot name="pull-refresh">
-                          <span class="down-tip">下拉更新</span>
-                          <span class="up-tip">松开刷新数据</span>
-                          <span class="refresh-tip" v-show="downLoading">加载中……</span>
-                      </slot>
-                  </header>
-                  <slot
-                      <ul>
-                          <li v-for="item in dataRefresh">
-                              {{ item.name }}
-                          </li>
-                          <li v-for="item in dataList">
-                              {{ item.name }}
-                          </li>
-                      </ul>
-                  </slot>
-                  <footer class="load-more">
-                      <slot name="load-more">
-                          <span >上拉加载更多</span>
-                          <span class="refresh-tip" v-show="upLoading">加载中……</span>
-                      </slot>
-                  </footer>
-                  <div class="nullData" v-show="noData">暂无更多数据</div>
-              </section>
-          </div>
+    <div class="">
+        <v-scroll :next = "getList" :up="refresh" :isLastPage="isLastPage">
+            <ul slot="list">
+                <li v-for="item in dataRefresh">{{item.name}}</li>
+                <li v-for="item in dataList">{{item.name}}</li>
+            </ul>
+        </v-scroll>
     </div>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
+import scroll from './components/Hello';
 export default {
+    components: {
+        'v-scroll':scroll
+    },
   data() {
       return{
-          upLoading:false,
-          downLoading:false,
-          noData:false,
           isLastPage:false,
-          clientHeight:0,//当前屏幕的高度
-          scrollTop:0,//滚出页面顶部距离
-          innerHeight:0,//页面高度
-          dataList:[],//下拉刷新数据
+          dataList:[],
           dataRefresh:[]//上拉刷新数据
       }
-
 },
 methods:{
-    touchEnd(e){
-        var $vm = this;
-        this.clientHeight = this.$el.clientHeight;
-        this.scrollTop = this.$el.scrollTop;
-        this.innerHeight = this.$el.scrollHeight;
-        console.log(this.$el.scrollTop);//滚出页面的高度
-        console.log(this.$el.clientHeight);//当前屏幕的高度
-        console.log(this.$el.scrollHeight);//当前页面的高度
-
-        if( this.scrollTop + this.clientHeight + 5 >= this.innerHeight){
-            console.log('到达底部');
-            $vm.getList();
-
-        }else{
-            console.log('未到达底部')
-        }
-        if (this.scrollTop == 0){
-            console.log('到达顶部');
-            this.downLoading = true;
-            this.refresh();
-
-        }
-
-    },
     getList(){
-        if( this.isLastPage ){
-            return;
-        }
-        this.upLoading = true;
-        axios.get('/api/moreData').then((res) => {
-            if(res.data.success){
-                if( res.data.dataList.length <=0 ){
-                    this.noData = true;
-                    this.isLastPage = true;
+        return new Promise((resolve, reject) => {
+            axios.get('/api/moreData').then((res) => {
+                if(res.data.success){
+                    this.dataList = this.dataList.concat(res.data.dataList);
+                    resolve();
+                } else {
+                    reject();
+                    console.log(res)
                 }
-                this.dataList = this.dataList.concat(res.data.dataList);
-            } else {
-                console.log(res)
-            }
-            this.upLoading = false;
 
-        }).catch( (error) => {
-            console.log(error);
-            this.upLoading = false;
-
+            }).catch( (error) => {
+                console.log(error);
+            });
         });
     },
     refresh(){
-        axios.get('/api/refresh').then((res) => {
-            if( res.data.success ){
-                this.dataRefresh = res.data.dataList;
-            } else {
-                console.log(res);
-            }
-            this.downLoading = false;
-        }).catch( (error) => {
-            console.log(error);
-            this.downLoading = false;
+        return new Promise((resolve, reject) => {
+            axios.get('/api/refresh').then((res) => {
+                if( res.data.success ){
+                    this.dataRefresh = res.data.dataList;
+                    resolve();
+                } else {
+                    reject();
+                    console.log(res);
+                }
+            }).catch( (error) => {
+                console.log(error);
+            })
         })
     }
 
