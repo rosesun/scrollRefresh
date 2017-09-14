@@ -8,26 +8,27 @@ router.get('/api/moreData', (req, res) => {
     currPage = parseInt(currPage) + 1;
     let data = {
         success: true,
-        dataList: [
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 },
-            { 'name': 123 }
-        ]
+        dataList: [],
+        // dataList: [
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 },
+        //     { 'name': 123 }
+        // ]
     }
     res.send(data);
 });

@@ -23,10 +23,10 @@
                   <footer class="load-more">
                       <slot name="load-more">
                           <span >上拉加载更多</span>
-                          <span v-show="upLoading">加载中……</span>
+                          <span class="refresh-tip" v-show="upLoading">加载中……</span>
                       </slot>
                   </footer>
-                  <div class="nullData" >暂无更多数据</div>
+                  <div class="nullData" v-show="noData">暂无更多数据</div>
               </section>
           </div>
     </div>
@@ -39,6 +39,8 @@ export default {
       return{
           upLoading:false,
           downLoading:false,
+          noData:false,
+          isLastPage:false,
           clientHeight:0,//当前屏幕的高度
           scrollTop:0,//滚出页面顶部距离
           innerHeight:0,//页面高度
@@ -59,7 +61,6 @@ methods:{
 
         if( this.scrollTop + this.clientHeight + 5 >= this.innerHeight){
             console.log('到达底部');
-            $vm.upLoading = true;
             $vm.getList();
 
         }else{
@@ -74,8 +75,16 @@ methods:{
 
     },
     getList(){
+        if( this.isLastPage ){
+            return;
+        }
+        this.upLoading = true;
         axios.get('/api/moreData').then((res) => {
             if(res.data.success){
+                if( res.data.dataList.length <=0 ){
+                    this.noData = true;
+                    this.isLastPage = true;
+                }
                 this.dataList = this.dataList.concat(res.data.dataList);
             } else {
                 console.log(res)
@@ -117,6 +126,13 @@ html,body{
 }
 .scroll{
     height:1000px;
+}
+.refresh-tip{
+    display:inline-block;
+    text-align: center;
+    line-height: 80px;
+    height:80px;
+    width:100%;
 }
 
 </style>
