@@ -28,6 +28,7 @@ methods:{
         return new Promise((resolve, reject) => {
             axios.get('/api/moreData').then((res) => {
                 if(res.data.success){
+                    console.log(this.isLastPage);
                     this.dataList = this.dataList.concat(res.data.dataList);
                     resolve();
                 } else {

@@ -1,6 +1,8 @@
 <template>
     <div class="scroll-box">
         <div class="scroll"
+        @touchStart="touchStart($event)"
+        @touchMove="touchMove($event)"
         @touchend="touchEnd($event)">
               <section class="inner">
                   <header class="pull-refresh">
@@ -54,14 +56,32 @@ export default {
 
 },
 methods:{
+    //开始滚动
+    touchStart(e){
+        console.log('开始滚动')
+
+    },
+    //滚动途中，判断是到达底部还是顶部，在适当的距离显示出刷新的提示
+    touchMove(e){
+        console.log(e.targetTouch[0]);
+        console.log(123)
+
+    },
     touchEnd(e){
         var $vm = this;
-        this.clientHeight = this.$el.clientHeight;
-        this.scrollTop = this.$el.scrollTop;
-        this.innerHeight = this.$el.scrollHeight;
-        console.log(this.$el.scrollTop);//滚出页面的高度
-        console.log(this.$el.clientHeight);//当前屏幕的高度
-        console.log(this.$el.scrollHeight);//当前页面的高度
+        // this.clientHeight = this.$el.clientHeight;
+        // this.scrollTop = this.$el.scrollTop;
+        // this.innerHeight = this.$el.scrollHeight;
+        this.clientHeight = window.innerHeight;
+        this.scrollTop = document.body.scrollTop;
+        this.innerHeight = document.body.scrollHeight;
+        console.log(document.body.scrollHeight);//可滚动的页面的高度
+        console.log(window.innerHeight);//屏幕的高度
+        console.log(document.body.scrollTop);//滚出屏幕的高度
+
+        // console.log(this.$el.scrollTop);//当前元素滚出页面的高度
+        // console.log(this.$el.clientHeight);//当前元素的高度
+        // console.log(this.$el.scrollHeight);//可滚动元素的高度
 
         if( this.scrollTop + this.clientHeight + 5 >= this.innerHeight){
             console.log('到达底部');
@@ -112,7 +132,7 @@ html,body{
     overflow: scroll;
 }
 .scroll{
-    height:1000px;
+    height:100%;
 }
 .refresh-tip{
     display:inline-block;
@@ -120,6 +140,9 @@ html,body{
     line-height: 80px;
     height:80px;
     width:100%;
+}
+.pull-refresh{
+    height:50px;
 }
 
 </style>
