@@ -1,6 +1,6 @@
 <template>
     <div class="">
-        <v-scroll :next = "getList" :up="refresh" :isLastPage="isLastPage">
+        <v-scroll :next = "getList" :up="refresh">
             <ul slot="list">
                 <li v-for="item in dataRefresh">{{item.name}}</li>
                 <li v-for="item in dataList">{{item.name}}</li>
@@ -18,7 +18,6 @@ export default {
     },
   data() {
       return{
-          isLastPage:false,
           dataList:[],
           dataRefresh:[]//上拉刷新数据
       }
@@ -28,12 +27,10 @@ methods:{
         return new Promise((resolve, reject) => {
             axios.get('/api/moreData').then((res) => {
                 if(res.data.success){
-                    console.log(this.isLastPage);
                     this.dataList = this.dataList.concat(res.data.dataList);
-                    resolve();
+                    resolve(res);
                 } else {
-                    reject();
-                    console.log(res)
+                    reject(res);
                 }
 
             }).catch( (error) => {
@@ -46,10 +43,9 @@ methods:{
             axios.get('/api/refresh').then((res) => {
                 if( res.data.success ){
                     this.dataRefresh = res.data.dataList;
-                    resolve();
+                    resolve(res);
                 } else {
-                    reject();
-                    console.log(res);
+                    reject(res);
                 }
             }).catch( (error) => {
                 console.log(error);

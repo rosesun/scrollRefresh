@@ -38,10 +38,6 @@ export default {
         up: {
             type: Function,
             required: true
-        },
-        isLastPage: {
-            type: Boolean,
-            required: false
         }
     },
   data() {
@@ -98,23 +94,35 @@ methods:{
 
     },
     getList(){
-        if( this.isLastPage ){
-            this.noData = true;
+        let $vm = this;
+        if ( $vm.noData ){
             return;
         }
-        this.upLoading = true;
-        this.next().then(() => {
-            this.upLoading = false;
-        }).catch( () => {
-            this.upLoading = false;
+        $vm.upLoading = true;
+        $vm.next().then((res) => {
+            if ( res.data.success ){
+                if (res.data.dataList.length <= 0){
+                    $vm.noData = true;
+                }
+                $vm.upLoading = false;
+            } else {
+                console.log('加载数据失败')
+            }
+        }).catch( (res) => {
+            $vm.upLoading = false;
 
         });
     },
     refresh(){
-        this.up().then(() => {
+        this.up().then((res) => {
+            if( res.data.success ){
+                this.downLoading = false;
+            } else {
+                console.log('更新失败');
+            }
+        }).catch( (res) => {
             this.downLoading = false;
-        }).catch( () => {
-            this.downLoading = false;
+            console.log(res)
         })
     },
 
